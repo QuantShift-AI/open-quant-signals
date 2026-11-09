@@ -1,6 +1,6 @@
 """
 QuantShift AI · EP01 Python Liquidity Sweep Backtest Template
-100% Free & Open Source | https://github.com/AidenChan2025/open-quant-signals
+100% Free & Open Source | https://github.com/QuantShift-AI/open-quant-signals
 """
 
 import pandas as pd
