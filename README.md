@@ -2,7 +2,7 @@
 
 [![YouTube Channel](https://img.shields.io/badge/YouTube-Watch%20Walkthroughs-red?style=for-the-badge&logo=youtube)](https://youtube.com/@quantshift-ai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![TradingView](https://img.shields.io/badge/TradingView-Verified%20Code-blue?style=for-the-badge&logo=tradingview)](https://www.tradingview.com/?aff_id=QuantShift)
+[![TradingView](https://img.shields.io/badge/TradingView-Verified%20Code-blue?style=for-the-badge&logo=tradingview)](https://www.tradingview.com/pricing/?share_your_love=quantshift-bot)
 [![GitHub Stars](https://img.shields.io/github/stars/QuantShift-AI/open-quant-signals?style=for-the-badge&color=yellow)](https://github.com/QuantShift-AI/open-quant-signals)
 
 > **Zero paid courses. Zero paid VIP Discord groups. 100% free & open-source quant strategies.**  
@@ -30,7 +30,7 @@
 
 ## 🚀 Quick Start (How to Add to TradingView in 30 Seconds)
 
-1. Open [TradingView.com](https://www.tradingview.com/?aff_id=QuantShift) (Free account works);
+1. Open [TradingView.com](https://www.tradingview.com/pricing/?share_your_love=quantshift-bot) (Free account works);
 2. Click on the **Pine Editor** tab at the bottom of any chart;
 3. Copy the code from [`indicators/QuantShift_Liquidity_Sweep_Engine.pine`](./indicators/QuantShift_Liquidity_Sweep_Engine.pine);
 4. Paste it into the editor and click **"Add to Chart"**;
