@@ -1,6 +1,6 @@
 # ⚡ QuantShift AI · Open-Source Algorithmic Trading Engines
 
-[![YouTube Channel](https://img.shields.io/badge/YouTube-Watch%20Walkthroughs-red?style=for-the-badge&logo=youtube)](https://youtube.com/@aitrading)
+[![YouTube Channel](https://img.shields.io/badge/YouTube-Watch%20Walkthroughs-red?style=for-the-badge&logo=youtube)](https://youtube.com/@quantshift-ai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![TradingView](https://img.shields.io/badge/TradingView-Verified%20Code-blue?style=for-the-badge&logo=tradingview)](https://www.tradingview.com/?aff_id=QuantShift)
 [![GitHub Stars](https://img.shields.io/github/stars/AidenChan2025/open-quant-signals?style=for-the-badge&color=yellow)](https://github.com/AidenChan2025/open-quant-signals)
@@ -13,7 +13,7 @@
 ## 📺 Video Walkthroughs (YouTube & TikTok)
 
 - **EP01: Why 95% of Day Traders Get Hunted by Liquidity Sweeps**  
-  [![Watch on YouTube](https://img.shields.io/badge/YouTube%20Shorts-Watch%20Now-FF0000?style=for-the-badge&logo=youtube)](https://youtube.com/@aitrading)  
+  [![Watch on YouTube](https://img.shields.io/badge/YouTube%20Shorts-Watch%20Now-FF0000?style=for-the-badge&logo=youtube)](https://youtube.com/@quantshift-ai)  
   *Watch how smart money bots engineer artificial breakouts to trigger retail stop losses, and how our PineScript code detects this in real-time.*
 
 ---
