@@ -3,6 +3,7 @@
 [![YouTube Channel](https://img.shields.io/badge/YouTube-Watch%20Walkthroughs-red?style=for-the-badge&logo=youtube)](https://youtube.com/@quantshift-ai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![TradingView](https://img.shields.io/badge/TradingView-Verified%20Code-blue?style=for-the-badge&logo=tradingview)](https://www.tradingview.com/pricing/?share_your_love=quantshift-bot)
+[![FTMO](https://img.shields.io/badge/FTMO-Funded%20Trader-orange?style=for-the-badge)](https://join.ftmo.com/bgEkQxUhICPrkqGeDlOK)
 [![GitHub Stars](https://img.shields.io/github/stars/QuantShift-AI/open-quant-signals?style=for-the-badge&color=yellow)](https://github.com/QuantShift-AI/open-quant-signals)
 
 > **Zero paid courses. Zero paid VIP Discord groups. 100% free & open-source quant strategies.**  
@@ -47,6 +48,13 @@ Retail traders place stop losses right below obvious swing lows. Institutional a
 - **Execution Rule**: Candle MUST pierce the liquidity pool but close back inside the range.
 
 Detailed mathematical breakdown available in [`docs/EP01_Liquidity_Sweep_Breakdown.md`](./docs/EP01_Liquidity_Sweep_Breakdown.md).
+
+---
+
+## 💼 Recommended Trading Platforms & Funded Capital
+
+- **Charting & Backtesting Engine**: [TradingView Official](https://www.tradingview.com/pricing/?share_your_love=quantshift-bot)
+- **Prop Firm Funded Challenge**: [FTMO Official Partner](https://join.ftmo.com/bgEkQxUhICPrkqGeDlOK) (Affiliate Code: `bgEkQxUhICPrkqGeDlOK`)
 
 ---
 
