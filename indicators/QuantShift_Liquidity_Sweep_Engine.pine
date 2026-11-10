@@ -1,35 +1,120 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © QuantShift AI (https://github.com/QuantShift-AI/open-quant-signals)
+// ==========================================================================================
+// INSTITUTIONAL LIQUIDITY SWEEP & ABSORPTION ENGINE (PRO EDITION v2.4)
+// Architecture: Multi-Timeframe Liquidity Hunting, Dynamic Volatility Envelopes & Order Flow
+// Target Assets: Forex (EURUSD, GBPUSD), Crypto (BTCUSDT, ETHUSDT), Indices (SPX, NDX)
+// Recommended Timeframes: 5m, 15m, 1h, 4h
+// ==========================================================================================
+
 //@version=5
-indicator("QuantShift AI · Liquidity Sweep Engine [Open-Source]", overlay=true)
+indicator("QuantShift AI · Institutional Liquidity Sweep Engine [PRO]", shorttitle="QS-SweepEngine", overlay=true, max_labels_count=500, max_lines_count=500, max_boxes_count=500)
 
-// ==========================================
-// QuantShift AI - EP01 Institutional Liquidity Sweep Engine
-// GitHub: https://github.com/QuantShift-AI/open-quant-signals
-// YouTube: https://youtube.com/@aitrading
-// License: MIT (100% Free & Open-Source)
-// ==========================================
+// ------------------------------------------------------------------------------------------
+// 1. INPUT CONFIGURATION & HYPERPARAMETERS
+// ------------------------------------------------------------------------------------------
+grp_main    = "⚙️ Core Engine Settings"
+lookbackLen = input.int(20, "Swing Structure Lookback", minval=5, maxval=100, tooltip="Number of bars used to establish swing liquidity extremes", group=grp_main)
+sweepSens   = input.float(1.5, "Max ATR Sweep Threshold", minval=0.2, maxval=4.0, step=0.1, tooltip="Maximum depth price can wick beyond liquidity before being classified as genuine breakout", group=grp_main)
+filterMode  = input.string("Dynamic ATR + Tick Volume", "Noise Filtering Mode", options=["None", "Dynamic ATR", "Dynamic ATR + Tick Volume"], group=grp_main)
 
-length = input.int(20, "Swing High/Low Lookback", minval=5)
-atrMultiplier = input.float(1.5, "ATR Filter Multiplier", minval=0.5)
+grp_targets = "🎯 Target & Invalidation Mechanics"
+rrRatio     = input.float(2.5, "Target Risk-to-Reward Ratio (R:R)", minval=1.0, maxval=10.0, step=0.1, tooltip="Default statistical R:R expansion target for backtest projection", group=grp_targets)
+bufferTicks = input.float(0.15, "Stop Buffer (x ATR)", minval=0.05, maxval=1.0, step=0.05, tooltip="Safety padding placed beyond the extreme liquidity wick", group=grp_targets)
 
-// Swing Points Calculation
-highestHigh = ta.highest(high[1], length)
-lowestLow = ta.lowest(low[1], length)
-atr = ta.atr(14)
+grp_visuals = "🎨 Terminal Visual & HUD Settings"
+showBoxes   = input.bool(true, "Render Institutional Liquidity Pools", group=grp_visuals)
+showTargets = input.bool(true, "Project Dynamic Take Profit / Stop Loss Projection", group=grp_visuals)
+colorBull   = input.color(#00FF66, "Institutional Buy Signal", group=grp_visuals)
+colorBear   = input.color(#FF3B30, "Institutional Sell Signal", group=grp_visuals)
+colorPool   = input.color(color.new(#00E5FF, 85), "Active Liquidity Zone", group=grp_visuals)
 
-// Bullish Liquidity Sweep: Price pierced below lowestLow, but closes back above it (Failed Breakdown)
-bullishSweep = (low < lowestLow) and (close > lowestLow) and ((lowestLow - low) < (atr * atrMultiplier))
+// ------------------------------------------------------------------------------------------
+// 2. MATHEMATICAL CORE ENGINE
+// ------------------------------------------------------------------------------------------
+atr14 = ta.atr(14)
+volSma = ta.sma(volume, 20)
+isHighVolume = volume > volSma * 1.15
 
-// Bearish Liquidity Sweep: Price pierced above highestHigh, but closes back below it (Failed Breakout)
-bearishSweep = (high > highestHigh) and (close < highestHigh) and ((high - highestHigh) < (atr * atrMultiplier))
+// Dynamic Swing Extremes (Excluding current candle)
+swingHigh = ta.highest(high[1], lookbackLen)
+swingLow  = ta.lowest(low[1], lookbackLen)
 
-// Plotting Signals
-plotshape(bullishSweep, title="Bullish Liquidity Sweep (Long)", location=location.belowbar, color=color.new(#00FF66, 0), style=shape.triangleup, size=size.normal, text="WHALE BUY")
-plotshape(bearishSweep, title="Bearish Liquidity Sweep (Short)", location=location.abovebar, color=color.new(#FF3B30, 0), style=shape.triangledown, size=size.normal, text="WHALE DUMP")
+// Liquidity Penetration Depth
+bullSweepDepth = swingLow - low
+bearSweepDepth = high - swingHigh
 
-// Reference Level Lines
-plot(highestHigh, "Institutional Buy Liquidity Pool", color=color.new(#FF3B30, 40), style=plot.style_linebr)
-plot(lowestLow, "Institutional Sell Liquidity Pool", color=color.new(#00FF66, 40), style=plot.style_linebr)
+// Strict Algorithmic Conditions:
+// 1. Extreme Wick Penetration (Hunting Retail Stops)
+// 2. Intraday Absorption Close (Price snaps back inside historical structure)
+// 3. Volatility Bounded (Prevents entering into massive trending black-swan candles)
+bool validBullDepth = (low < swingLow) and (bullSweepDepth <= atr14 * sweepSens)
+bool validBullClose = (close > swingLow)
+bool validBullVolume = (filterMode == "None") ? true : (filterMode == "Dynamic ATR") ? true : isHighVolume
 
-// Dynamic Alerts
-alertcondition(bullishSweep, title="Bullish Liquidity Sweep Alert", message="QuantShift Alert: Smart Money Bullish Liquidity Sweep detected on {{ticker}}!")
-alertcondition(bearishSweep, title="Bearish Liquidity Sweep Alert", message="QuantShift Alert: Smart Money Bearish Liquidity Sweep detected on {{ticker}}!")
+bool validBearDepth = (high > swingHigh) and (bearSweepDepth <= atr14 * sweepSens)
+bool validBearClose = (close < swingHigh)
+bool validBearVolume = (filterMode == "None") ? true : (filterMode == "Dynamic ATR") ? true : isHighVolume
+
+bool bullSignal = validBullDepth and validBullClose and validBullVolume
+bool bearSignal = validBearDepth and validBearClose and validBearVolume
+
+// Avoid consecutive duplicate signals on the exact same structure level
+var float lastBullLevel = na
+var float lastBearLevel = na
+
+if bullSignal
+    if not na(lastBullLevel) and lastBullLevel == swingLow
+        bullSignal := false
+    else
+        lastBullLevel := swingLow
+
+if bearSignal
+    if not na(lastBearLevel) and lastBearLevel == swingHigh
+        bearSignal := false
+    else
+        lastBearLevel := swingHigh
+
+// ------------------------------------------------------------------------------------------
+// 3. TARGET PROJECTIONS & RISK CALCULATIONS
+// ------------------------------------------------------------------------------------------
+float longStop = na
+float longTP   = na
+float shortStop = na
+float shortTP   = na
+
+if bullSignal
+    longStop := low - (atr14 * bufferTicks)
+    float risk = close - longStop
+    longTP   := close + (risk * rrRatio)
+
+if bearSignal
+    shortStop := high + (atr14 * bufferTicks)
+    float risk = shortStop - close
+    shortTP   := close - (risk * rrRatio)
+
+// ------------------------------------------------------------------------------------------
+// 4. CHART RENDERING & INSTITUTIONAL HUD
+// ------------------------------------------------------------------------------------------
+// Plot Structure Levels
+plot(swingHigh, "Upper Liquidity Pool", color=color.new(#FF3B30, 60), style=plot.style_circles, linewidth=1)
+plot(swingLow,  "Lower Liquidity Pool", color=color.new(#00FF66, 60), style=plot.style_circles, linewidth=1)
+
+// Plot Signals
+plotshape(bullSignal, title="Institutional Buy Sweep", style=shape.triangleup, location=location.belowbar, color=colorBull, size=size.normal, text="SWEEP BUY", textcolor=color.black)
+plotshape(bearSignal, title="Institutional Sell Sweep", style=shape.triangledown, location=location.abovebar, color=colorBear, size=size.normal, text="SWEEP SELL", textcolor=color.white)
+
+// Draw Projection Boxes
+if bullSignal and showTargets
+    box.new(left=bar_index, top=longTP, right=bar_index + 12, bottom=close, border_color=color.new(colorBull, 30), bgcolor=color.new(colorBull, 88))
+    box.new(left=bar_index, top=close, right=bar_index + 12, bottom=longStop, border_color=color.new(colorBear, 30), bgcolor=color.new(colorBear, 88))
+
+if bearSignal and showTargets
+    box.new(left=bar_index, top=close, right=bar_index + 12, bottom=shortTP, border_color=color.new(colorBull, 30), bgcolor=color.new(colorBull, 88))
+    box.new(left=bar_index, top=shortStop, right=bar_index + 12, bottom=close, border_color=color.new(colorBear, 30), bgcolor=color.new(colorBear, 88))
+
+// ------------------------------------------------------------------------------------------
+// 5. AUTOMATED ALERTS (TRADINGVIEW & WEBHOOK READY)
+// ------------------------------------------------------------------------------------------
+alertcondition(bullSignal, title="⚡ Bullish Liquidity Sweep Confirmed", message="QuantShift AI Alert: Bullish Liquidity Sweep Confirmed on {{ticker}} at {{close}}. Stop: Set beyond wick extreme. Target R:R 1:2.5.")
+alertcondition(bearSignal, title="⚡ Bearish Liquidity Sweep Confirmed", message="QuantShift AI Alert: Bearish Liquidity Sweep Confirmed on {{ticker}} at {{close}}. Stop: Set beyond wick extreme. Target R:R 1:2.5.")
